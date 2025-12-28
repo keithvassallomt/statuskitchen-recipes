@@ -1,0 +1,123 @@
+[app]
+id = "app.statuskitchen.nextcloud"
+name = "NextCloud"
+dbus_name_pattern = "*NextCloud*"
+debug = false
+
+[top_bar_icon]
+icon_is_custom = false
+inactive_icon_is_custom = false
+symbolic = true
+hide_when_inactive = true
+dynamic_icons_enabled = true
+dynamic_icons = []
+dynamic_menu_items_enabled = true
+
+[[top_bar_icon.menu_items]]
+label = "Open Nextcloud Desktop"
+dbus_pattern = "*NextCloud*"
+object_path = "/com/nextcloudgmbh/Nextcloud/Folder/0"
+interface = "gtk"
+item_id = 0
+action_name = "cloudprovider.openmaindialog"
+enabled = true
+
+[[top_bar_icon.menu_items]]
+label = "Pause synchronization"
+dbus_pattern = "*NextCloud*"
+object_path = "/com/nextcloudgmbh/Nextcloud/Folder/0"
+interface = "gtk"
+item_id = 0
+action_name = "cloudprovider.pause"
+enabled = true
+
+[[top_bar_icon.menu_items]]
+label = "Open in browser"
+dbus_pattern = "*NextCloud*"
+object_path = "/com/nextcloudgmbh/Nextcloud/Folder/0"
+interface = "gtk"
+item_id = 0
+action_name = "cloudprovider.openwebsite"
+enabled = true
+
+[[top_bar_icon.menu_items]]
+label = "Help"
+dbus_pattern = "*NextCloud*"
+object_path = "/com/nextcloudgmbh/Nextcloud/Folder/0"
+interface = "gtk"
+item_id = 0
+action_name = "cloudprovider.openhelp"
+enabled = true
+
+[[top_bar_icon.menu_items]]
+label = "Settings"
+dbus_pattern = "*NextCloud*"
+object_path = "/com/nextcloudgmbh/Nextcloud/Folder/0"
+interface = "gtk"
+item_id = 0
+action_name = "cloudprovider.opensettings"
+enabled = true
+
+[[top_bar_icon.menu_items]]
+label = "Log out"
+dbus_pattern = "*NextCloud*"
+object_path = "/com/nextcloudgmbh/Nextcloud/Folder/0"
+interface = "gtk"
+item_id = 0
+action_name = "cloudprovider.logout"
+enabled = true
+
+[[top_bar_icon.menu_items]]
+label = "Quit sync client"
+dbus_pattern = "*NextCloud*"
+object_path = "/com/nextcloudgmbh/Nextcloud/Folder/0"
+interface = "gtk"
+item_id = 0
+action_name = "cloudprovider.quit"
+enabled = true
+
+[[top_bar_icon.menu_items]]
+label = "Pause sync for all"
+dbus_pattern = "*NextCloud*"
+object_path = "/MenuBar"
+interface = "dbusmenu"
+item_id = 8
+enabled = true
+
+[[top_bar_icon.menu_items]]
+label = "Resume sync for all"
+dbus_pattern = "*NextCloud*"
+object_path = "/MenuBar"
+interface = "dbusmenu"
+item_id = 9
+enabled = true
+
+[[top_bar_icon.menu_items]]
+label = "Exit Nextcloud"
+dbus_pattern = "*NextCloud*"
+object_path = "/MenuBar"
+interface = "dbusmenu"
+item_id = 12
+enabled = true
+
+[metadata]
+uuid = "nextcloud@keithvassallomt.statuskitchen.app"
+name = "NextCloud Status Kitchen Extension"
+description = "An extension test"
+version = 1
+url = "https://github.com/keithvassallomt/statuskitchen-recipes/tree/main/recipes/nextcloud-keithvassallomt-statuskitchen-app"
+shell_versions = [
+    48,
+    46,
+    47,
+    45,
+    49,
+]
+
+[sk_metadata]
+author = "Keith Vassallo"
+author_url = "https://keithvassallo.com"
+license = "MIT"
+icon_path = "assets/nextcloud-keithvassallomt-statuskitchen-app-icon.svg"
+screenshot_path = "assets/nextcloud-keithvassallomt-statuskitchen-app-screenshot.png"
+github_username = "keithvassallomt"
