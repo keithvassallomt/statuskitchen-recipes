@@ -1,0 +1,107 @@
+name: Validate Recipe PR
+
+on:
+  pull_request:
+    paths:
+      - 'recipes/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Find changed recipe folders
+        id: changes
+        run: |
+          # Get list of changed files in recipes/ directory
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD -- recipes/ || echo "")
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No recipe changes detected"
+            echo "folders=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Extract unique folder names (first level under recipes/)
+          FOLDERS=$(echo "$CHANGED_FILES" | grep "^recipes/" | cut -d'/' -f2 | sort -u | tr '\n' ' ')
+          echo "Changed recipe folders: $FOLDERS"
+          echo "folders=$FOLDERS" >> $GITHUB_OUTPUT
+
+      - name: Validate recipe structure
+        if: steps.changes.outputs.folders != ''
+        run: |
+          EXIT_CODE=0
+
+          for folder in ${{ steps.changes.outputs.folders }}; do
+            echo "Validating: recipes/$folder"
+
+            # Check recipe.toml exists
+            if [ ! -f "recipes/$folder/recipe.toml" ]; then
+              echo "::error::Missing recipe.toml in recipes/$folder"
+              EXIT_CODE=1
+              continue
+            fi
+
+            # Check assets directory exists
+            if [ ! -d "recipes/$folder/assets" ]; then
+              echo "::error::Missing assets/ directory in recipes/$folder"
+              EXIT_CODE=1
+            fi
+
+            # Check dist directory exists
+            if [ ! -d "recipes/$folder/dist" ]; then
+              echo "::error::Missing dist/ directory in recipes/$folder"
+              EXIT_CODE=1
+              continue
+            fi
+
+            # Validate TOML parses correctly
+            if ! python3 -c "import tomllib; tomllib.load(open('recipes/$folder/recipe.toml', 'rb'))"; then
+              echo "::error::Invalid TOML in recipes/$folder/recipe.toml"
+              EXIT_CODE=1
+            fi
+
+            # Check .skr file exists and is valid ZIP
+            SKR_FILE=$(ls recipes/$folder/dist/*.skr 2>/dev/null | head -1)
+            if [ -z "$SKR_FILE" ]; then
+              echo "::error::No .skr file found in recipes/$folder/dist/"
+              EXIT_CODE=1
+            elif ! unzip -t "$SKR_FILE" > /dev/null 2>&1; then
+              echo "::error::Invalid .skr archive: $SKR_FILE"
+              EXIT_CODE=1
+            else
+              echo "Valid .skr file: $SKR_FILE"
+            fi
+
+            # Validate folder name matches UUID format
+            # Expected: {app}-{username}-statuskitchen-app
+            if [[ ! "$folder" =~ ^[a-z0-9-]+-[a-z0-9-]+-statuskitchen-app$ ]]; then
+              echo "::warning::Folder name '$folder' may not match expected format: {app}-{username}-statuskitchen-app"
+            fi
+
+            echo "Validation passed for: recipes/$folder"
+          done
+
+          exit $EXIT_CODE
+
+      - name: Check UUID uniqueness
+        if: steps.changes.outputs.folders != ''
+        run: python3 scripts/check_uuid_uniqueness.py
+
+      - name: Validation Summary
+        if: always()
+        run: |
+          if [ "${{ steps.changes.outputs.folders }}" = "" ]; then
+            echo "No recipe changes to validate"
+          else
+            echo "Validated folders: ${{ steps.changes.outputs.folders }}"
+          fi
